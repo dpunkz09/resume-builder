@@ -5,6 +5,9 @@ import { ResumeList } from "@/components/dashboard/resume-list";
 import { getUserResumes } from "@/app/actions/resume-actions";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 
+// Mark this route as dynamic
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
     headers: await headers(),

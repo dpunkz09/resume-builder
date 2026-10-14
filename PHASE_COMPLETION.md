@@ -146,8 +146,9 @@ See `DECISIONS.md` for full details:
 **Completed**: October 15, 2026
 
 ### Acceptance Criteria
+
 - ✅ User can sign up with email or Google
-- ✅ User can log in and log out  
+- ✅ User can log in and log out
 - ✅ Dashboard shows user's resumes
 - ✅ User can create blank resume
 - ✅ User can rename resume
@@ -160,6 +161,7 @@ See `DECISIONS.md` for full details:
 ### What Was Built
 
 #### Authentication System
+
 - **Better Auth Integration**: Email/password + Google OAuth
 - **API Route**: `/api/auth/[...all]` - Better Auth handler
 - **Client Library**: `lib/auth-client.ts` - React hooks and functions
@@ -167,17 +169,20 @@ See `DECISIONS.md` for full details:
 - **Proxy Protection**: `proxy.ts` - Next.js 16 proxy for protected routes
 
 #### Auth Pages & Components
+
 - **Login Page**: `/login` - Email/password and Google login
 - **Signup Page**: `/signup` - New user registration
 - **LoginForm Component**: Client component with error handling
 - **SignupForm Component**: Auto-initializes subscription on signup
 
 #### Dashboard
+
 - **Dashboard Page**: `/dashboard` - Protected route showing user's resumes
 - **DashboardHeader**: Client component with sign-out functionality
 - **ResumeList**: Interactive resume management component
 
 #### Server Actions
+
 - `createResume()` - Creates new resume (checks plan limits)
 - `getUserResumes()` - Fetches all user resumes (scoped to user)
 - `renameResume()` - Updates resume title (owner only)
@@ -186,17 +191,20 @@ See `DECISIONS.md` for full details:
 - `initializeUserData()` - Sets up free subscription
 
 #### Database Updates
+
 - **Better Auth Tables**: user, session, account, verification
 - **Schema Changes**: Updated to use Better Auth compatible schema
 - **Subscription System**: Auto-creates free subscription on signup
 
 #### Authorization
+
 - All resume operations are scoped to `userId`
 - Server actions validate session before any operation
 - Proxy redirects unauthenticated users to `/login`
 - Database schema enforces foreign key constraints
 
 ### Security Features
+
 - Passwords hashed with scrypt (Better Auth default)
 - Session management via Better Auth
 - CSRF protection via Better Auth
@@ -204,6 +212,7 @@ See `DECISIONS.md` for full details:
 - No cross-user data access possible
 
 ### Plan Limits Enforcement
+
 - Free plan: Maximum 1 resume
 - Upgrade prompts shown when limit reached
 - Duplicate and create operations check limits
@@ -212,6 +221,7 @@ See `DECISIONS.md` for full details:
 ### How to Test
 
 1. **Start the app** (requires database setup):
+
    ```bash
    # Make sure .env.local has DATABASE_URL and BETTER_AUTH_SECRET
    npm run db:push  # Push schema to database
@@ -220,7 +230,7 @@ See `DECISIONS.md` for full details:
 
 2. **Sign Up**:
    - Visit http://localhost:3000 (redirects to /login)
-   - Click "Sign up" 
+   - Click "Sign up"
    - Enter name, email, password
    - Automatically redirected to dashboard
    - Free subscription created
@@ -245,12 +255,14 @@ See `DECISIONS.md` for full details:
 ### Technical Notes
 
 **Better Auth Setup**:
+
 - Uses Drizzle adapter for PostgreSQL
 - nextCookies plugin for automatic cookie handling
 - Session-based authentication (no JWT)
 - Support for email/password and Google OAuth
 
 **Next.js 16 Changes**:
+
 - Using `proxy.ts` instead of `middleware.ts`
 - Using `headers()` function for session checks
 - Server Actions for mutations
@@ -261,6 +273,7 @@ See `DECISIONS.md` for full details:
 None blocking. Phase 1 is complete.
 
 **For Phase 2**:
+
 - Need to implement resume editor
 - Need live preview component
 - Zod validation for resume content
