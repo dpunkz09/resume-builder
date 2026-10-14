@@ -5,7 +5,6 @@
 
 import { db } from "./index";
 import { users, subscriptions, resumes } from "./schema";
-import { eq } from "drizzle-orm";
 
 async function seed() {
   console.log("🌱 Seeding database...");
@@ -23,8 +22,10 @@ async function seed() {
     const [testUser] = await db
       .insert(users)
       .values({
+        id: "test-user-1",
         email: "test@example.com",
         name: "Test User",
+        emailVerified: true,
       })
       .returning();
 

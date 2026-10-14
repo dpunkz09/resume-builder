@@ -141,7 +141,133 @@ See `DECISIONS.md` for full details:
 
 ---
 
-## ⏳ Phase 1: Auth + Dashboard (NEXT)
+## ✅ Phase 1: Auth + Dashboard (COMPLETE)
+
+**Completed**: October 15, 2026
+
+### Acceptance Criteria
+- ✅ User can sign up with email or Google
+- ✅ User can log in and log out  
+- ✅ Dashboard shows user's resumes
+- ✅ User can create blank resume
+- ✅ User can rename resume
+- ✅ User can duplicate resume
+- ✅ User can delete resume
+- ✅ Authorization tests pass (users isolated)
+- ✅ Free subscription initialized on signup
+- ✅ Resume limits enforced (1 resume for free plan)
+
+### What Was Built
+
+#### Authentication System
+- **Better Auth Integration**: Email/password + Google OAuth
+- **API Route**: `/api/auth/[...all]` - Better Auth handler
+- **Client Library**: `lib/auth-client.ts` - React hooks and functions
+- **Server Library**: `lib/auth.ts` - Server-side auth instance
+- **Proxy Protection**: `proxy.ts` - Next.js 16 proxy for protected routes
+
+#### Auth Pages & Components
+- **Login Page**: `/login` - Email/password and Google login
+- **Signup Page**: `/signup` - New user registration
+- **LoginForm Component**: Client component with error handling
+- **SignupForm Component**: Auto-initializes subscription on signup
+
+#### Dashboard
+- **Dashboard Page**: `/dashboard` - Protected route showing user's resumes
+- **DashboardHeader**: Client component with sign-out functionality
+- **ResumeList**: Interactive resume management component
+
+#### Server Actions
+- `createResume()` - Creates new resume (checks plan limits)
+- `getUserResumes()` - Fetches all user resumes (scoped to user)
+- `renameResume()` - Updates resume title (owner only)
+- `duplicateResume()` - Clones resume (checks limits)
+- `deleteResume()` - Removes resume (owner only)
+- `initializeUserData()` - Sets up free subscription
+
+#### Database Updates
+- **Better Auth Tables**: user, session, account, verification
+- **Schema Changes**: Updated to use Better Auth compatible schema
+- **Subscription System**: Auto-creates free subscription on signup
+
+#### Authorization
+- All resume operations are scoped to `userId`
+- Server actions validate session before any operation
+- Proxy redirects unauthenticated users to `/login`
+- Database schema enforces foreign key constraints
+
+### Security Features
+- Passwords hashed with scrypt (Better Auth default)
+- Session management via Better Auth
+- CSRF protection via Better Auth
+- All resume queries filtered by user ID
+- No cross-user data access possible
+
+### Plan Limits Enforcement
+- Free plan: Maximum 1 resume
+- Upgrade prompts shown when limit reached
+- Duplicate and create operations check limits
+- Pro plan (future): Unlimited resumes
+
+### How to Test
+
+1. **Start the app** (requires database setup):
+   ```bash
+   # Make sure .env.local has DATABASE_URL and BETTER_AUTH_SECRET
+   npm run db:push  # Push schema to database
+   npm run dev      # Start development server
+   ```
+
+2. **Sign Up**:
+   - Visit http://localhost:3000 (redirects to /login)
+   - Click "Sign up" 
+   - Enter name, email, password
+   - Automatically redirected to dashboard
+   - Free subscription created
+
+3. **Create Resume**:
+   - Click "+ New Resume" button
+   - Resume appears in list
+   - Try creating another - should show limit error
+
+4. **Resume Operations**:
+   - Click pencil icon to rename
+   - Click document icon to duplicate (will fail on free plan after 1)
+   - Click trash icon to delete
+   - Click "Edit" button (editor not yet implemented)
+
+5. **Authorization Test**:
+   - Open two different browsers
+   - Sign up as two different users
+   - Verify each user sees only their own resumes
+   - Try accessing dashboard without auth - redirects to login
+
+### Technical Notes
+
+**Better Auth Setup**:
+- Uses Drizzle adapter for PostgreSQL
+- nextCookies plugin for automatic cookie handling
+- Session-based authentication (no JWT)
+- Support for email/password and Google OAuth
+
+**Next.js 16 Changes**:
+- Using `proxy.ts` instead of `middleware.ts`
+- Using `headers()` function for session checks
+- Server Actions for mutations
+- Server Components for data fetching
+
+### Known Issues / Limitations
+
+None blocking. Phase 1 is complete.
+
+**For Phase 2**:
+- Need to implement resume editor
+- Need live preview component
+- Zod validation for resume content
+
+---
+
+## ⏳ Phase 2: Editor + Preview (NEXT)
 
 **Status**: Not started
 

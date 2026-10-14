@@ -1,22 +1,74 @@
-import { pgTable, uuid, text, timestamp, jsonb, varchar, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  jsonb,
+  varchar,
+  index,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-// Users table
-export const users = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+// Better Auth tables
+// Users table (Better Auth compatible)
+export const users = pgTable("user", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("emailVerified").notNull().default(false),
   name: text("name"),
-  avatarUrl: text("avatar_url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  image: text("image"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
 
+// Sessions table (Better Auth)
+export const sessions = pgTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  ipAddress: text("ipAddress"),
+  userAgent: text("userAgent"),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+// Accounts table (Better Auth - for OAuth)
+export const accounts = pgTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("accountId").notNull(),
+  providerId: text("providerId").notNull(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accessToken: text("accessToken"),
+  refreshToken: text("refreshToken"),
+  idToken: text("idToken"),
+  expiresAt: timestamp("expiresAt"),
+  password: text("password"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+// Verifications table (Better Auth - for email verification)
+export const verifications = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+// Application tables
 // Subscriptions table
 export const subscriptions = pgTable(
   "subscriptions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
+    userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     provider: varchar("provider", { length: 50 }).notNull(), // 'stripe' or 'paddle'
@@ -38,7 +90,7 @@ export const resumes = pgTable(
   "resumes",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
+    userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     title: varchar("title", { length: 255 }).notNull().default("Untitled Resume"),
@@ -52,14 +104,17 @@ export const resumes = pgTable(
         margins: string;
         pageSize: "a4" | "letter";
       }>()
-      .notNull().default(sql`'{
+      .notNull()
+      .default(
+        sql`'{
     "color": "#0066cc",
     "font": "inter",
     "fontSize": "medium",
     "spacing": "normal",
     "margins": "normal",
     "pageSize": "a4"
-  }'::jsonb`),
+  }'::jsonb`
+      ),
     content: jsonb("content")
       .$type<{
         basics: {
@@ -87,7 +142,9 @@ export const resumes = pgTable(
           items: unknown[];
         }>;
       }>()
-      .notNull().default(sql`'{
+      .notNull()
+      .default(
+        sql`'{
     "basics": {
       "fullName": "",
       "headline": "",
@@ -99,7 +156,8 @@ export const resumes = pgTable(
     },
     "summary": "",
     "sections": []
-  }'::jsonb`),
+  }'::jsonb`
+      ),
     isPublic: varchar("is_public", { length: 10 }).notNull().default("false"),
     publicSlug: varchar("public_slug", { length: 255 }).unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -116,7 +174,7 @@ export const aiUsage = pgTable(
   "ai_usage",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
+    userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     feature: varchar("feature", { length: 100 }).notNull(), // 'rewrite', 'generate_summary', 'tailor', etc.
@@ -133,6 +191,12 @@ export const aiUsage = pgTable(
 // Types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
+export type Account = typeof accounts.$inferSelect;
+export type NewAccount = typeof accounts.$inferInsert;
+export type Verification = typeof verifications.$inferSelect;
+export type NewVerification = typeof verifications.$inferInsert;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type NewSubscription = typeof subscriptions.$inferInsert;
 export type Resume = typeof resumes.$inferSelect;
