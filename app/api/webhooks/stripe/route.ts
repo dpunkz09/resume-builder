@@ -82,9 +82,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Fetch the subscription details from Stripe
   const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
 
-  // Safely get the current period end
-  const currentPeriodEnd = subscriptionResponse.current_period_end
-    ? new Date(subscriptionResponse.current_period_end * 1000)
+  // Safely get the current period end with type assertion
+  const currentPeriodEnd = (subscriptionResponse as any).current_period_end
+    ? new Date((subscriptionResponse as any).current_period_end * 1000)
     : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
 
   // Create or update subscription record

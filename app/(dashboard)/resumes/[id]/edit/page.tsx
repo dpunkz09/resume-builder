@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${resumeTitle} - ${BRAND.name}`,
-    description: `Edit your resume: ${resumeTitle}. Customize templates, add sections, and export to PDF or DOCX.`,
+    description: `Edit your resume: ${resumeTitle}. Customize templates, add sections, and export to PDF.`,
     robots: {
       index: false,
       follow: false,

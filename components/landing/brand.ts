@@ -4,7 +4,7 @@ export const BRAND = {
   shortName: "JPAWORX",
   supportEmail: "support@jpaworx.com",
   domain: "jpaworx.com",
-  description: "Create professional ATS-friendly resumes with AI-powered suggestions. Choose from premium templates, customize every detail, and export to PDF or DOCX.",
+  description: "Create professional ATS-friendly resumes with AI-powered suggestions. Choose from premium templates, customize every detail, and export to PDF.",
   keywords: [
     "resume builder",
     "cv maker",
@@ -16,5 +16,5 @@ export const BRAND = {
     "resume generator",
     "online cv builder",
     "free resume builder"
-  ],
+  ] as string[],
 } as const;

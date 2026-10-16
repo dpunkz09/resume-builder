@@ -29,7 +29,6 @@
     "better-auth": "^1.7.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "docx": "^9.11.0",
     "dotenv": "^18.0.7",
     "drizzle-orm": "^0.45.4",
     "file-saver": "^2.0.5",

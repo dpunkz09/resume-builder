@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `${BRAND.name} - Create Professional ATS-Friendly Resumes Online`,
-  description: `Build your perfect resume with ${BRAND.name}. Choose from professional templates, customize with AI-powered suggestions, and export to PDF or DOCX. Free and Pro plans available.`,
+  description: `Build your perfect resume with ${BRAND.name}. Choose from professional templates, customize with AI-powered suggestions, and export to PDF. Free and Pro plans available.`,
   openGraph: {
     title: `${BRAND.name} - Professional Resume Builder`,
-    description: "Create ATS-friendly resumes with AI assistance. Multiple templates, real-time preview, PDF/DOCX export.",
+    description: "Create ATS-friendly resumes with AI assistance. Multiple templates, real-time preview, PDF export.",
     type: "website",
   },
   alternates: {

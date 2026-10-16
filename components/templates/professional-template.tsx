@@ -142,7 +142,7 @@ export function ProfessionalTemplate({ content, theme }: ProfessionalTemplatePro
                 {(item.description || (item.highlights && item.highlights.length > 0)) && (
                   <ul className="list-disc ml-5 space-y-0.5">
                     {item.description
-                      ? item.description.split("\n").filter(line => line.trim()).map((line, i) => (
+                      ? item.description.split("\n").filter((line: string) => line.trim()).map((line: string, i: number) => (
                           <li key={i} className="text-sm leading-relaxed">
                             {line.trim()}
                           </li>
@@ -190,7 +190,7 @@ export function ProfessionalTemplate({ content, theme }: ProfessionalTemplatePro
                 {(item.description || (item.highlights && item.highlights.length > 0)) && (
                   <ul className="list-disc ml-5 space-y-0.5">
                     {item.description
-                      ? item.description.split("\n").filter(line => line.trim()).map((line, i) => (
+                      ? item.description.split("\n").filter((line: string) => line.trim()).map((line: string, i: number) => (
                           <li key={i} className="text-sm leading-relaxed">
                             {line.trim()}
                           </li>
@@ -260,7 +260,7 @@ export function ProfessionalTemplate({ content, theme }: ProfessionalTemplatePro
                 <p className="text-sm">{item.institution || "University Name"}</p>
                 {item.description && (
                   <ul className="list-disc ml-5 mt-0.5">
-                    {item.description.split("\n").filter(line => line.trim()).map((line, i) => (
+                    {item.description.split("\n").filter((line: string) => line.trim()).map((line: string, i: number) => (
                       <li key={i} className="text-sm leading-relaxed">
                         {line.trim()}
                       </li>

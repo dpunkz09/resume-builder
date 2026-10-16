@@ -224,7 +224,7 @@ export async function updateResumeTemplate(
       .update(resumes)
       .set({
         templateId,
-        theme,
+        theme: theme as any, // Type cast to bypass strict typing
         updatedAt: new Date(),
       })
       .where(and(eq(resumes.id, resumeId), eq(resumes.userId, session.user.id)))

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/auth-client";
+import { signUp, authClient } from "@/lib/auth-client";
 import { sendVerificationOTP } from "@/app/actions/verification-actions";
 
 const focusRing =
@@ -54,7 +54,7 @@ export function SignupForm() {
 
   const handleGoogleSignUp = async () => {
     try {
-      await signIn.social({
+      await authClient.signIn.social({
         provider: "google",
         callbackURL: "/dashboard",
       });
