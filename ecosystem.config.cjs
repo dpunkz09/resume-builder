@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'jpaworx-resume-builder',
+      name: 'resume-builder',
       cwd: '/var/www/jpaworx.com/resume-builder',
       script: 'npm',
       args: 'start',
