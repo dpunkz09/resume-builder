@@ -24,3 +24,29 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Ensure form inputs have proper contrast */
+input,
+textarea,
+select {
+  color: #1f2937; /* gray-800 */
+  background-color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* PDF/Print styles - ensure consistent margins on all pages */
+@media print {
+  @page {
+    margin: 0;
+  }
+
+  /* Ensure content respects padding on all pages */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+}

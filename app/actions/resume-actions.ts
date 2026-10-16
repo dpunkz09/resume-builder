@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ResumeContent, Theme } from "@/types";
 
 // Helper to get current user session
 async function getSession() {
@@ -30,11 +31,14 @@ async function checkResumeLimit(userId: string) {
     .where(eq(subscriptions.userId, userId))
     .limit(1);
 
+  const plan = subscription?.plan || "free";
+  const planLimits = plan === "pro" ? { resumeLimit: Infinity } : { resumeLimit: 1 };
+
   // If free plan, check resume count
-  if (!subscription || subscription.plan === "free") {
+  if (plan === "free") {
     const userResumes = await db.select().from(resumes).where(eq(resumes.userId, userId));
 
-    if (userResumes.length >= 1) {
+    if (userResumes.length >= planLimits.resumeLimit) {
       return {
         allowed: false,
         message: "Free plan limit: 1 resume. Upgrade to Pro for unlimited resumes.",
@@ -177,5 +181,62 @@ export async function deleteResume(resumeId: string) {
     return { success: true };
   } catch (_error) {
     return { error: "Failed to delete resume" };
+  }
+}
+
+// Update resume content
+export async function updateResumeContent(resumeId: string, content: unknown) {
+  const session = await getSession();
+
+  try {
+    const [resume] = await db
+      .update(resumes)
+      .set({
+        content: content as typeof resumes.$inferSelect.content,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(resumes.id, resumeId), eq(resumes.userId, session.user.id)))
+      .returning();
+
+    if (!resume) {
+      return { error: "Resume not found" };
+    }
+
+    return { success: true };
+  } catch (_error) {
+    return { error: "Failed to update resume" };
+  }
+}
+
+// Update resume template and theme
+export async function updateResumeTemplate(
+  resumeId: string,
+  templateId: string,
+  theme: Theme
+): Promise<{ success?: boolean; error?: string }> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return { error: "Unauthorized" };
+    }
+
+    const [resume] = await db
+      .update(resumes)
+      .set({
+        templateId,
+        theme,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(resumes.id, resumeId), eq(resumes.userId, session.user.id)))
+      .returning();
+
+    if (!resume) {
+      return { error: "Resume not found or unauthorized" };
+    }
+
+    revalidatePath(`/resumes/${resumeId}/edit`);
+    return { success: true };
+  } catch (_error) {
+    return { error: "Failed to update template" };
   }
 }

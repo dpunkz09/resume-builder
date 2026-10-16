@@ -7,6 +7,7 @@ import {
   varchar,
   index,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -181,14 +182,14 @@ export const aiUsage = pgTable(
     userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    feature: varchar("feature", { length: 100 }).notNull(), // 'rewrite', 'generate_summary', 'tailor', etc.
-    tokensIn: varchar("tokens_in", { length: 50 }),
-    tokensOut: varchar("tokens_out", { length: 50 }),
+    feature: text("feature").notNull(), // 'rewrite_bullet', 'generate_summary', 'tailor_resume'
+    tokensIn: integer("tokens_in").notNull().default(0),
+    tokensOut: integer("tokens_out").notNull().default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
     userIdIdx: index("ai_usage_user_id_idx").on(table.userId),
-    createdAtIdx: index("ai_usage_created_at_idx").on(table.createdAt),
+    userCreatedIdx: index("ai_usage_user_created_idx").on(table.userId, table.createdAt),
   })
 );
 

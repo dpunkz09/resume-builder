@@ -31,7 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
 
 # vercel
 .vercel
@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+PHASE_1_COMPLETE.md
+PHASE_2_COMPLETE.md
+PHASE_3_COMPLETE.md
+PHASE_4_COMPLETE.md
+PHASE_5_COMPLETE.md
+TESTING_PHASE_1.md
+TESTING_PHASE_2.md
+TESTING_PHASE_3.md
+TESTING_PHASE_4.md
+TESTING_PHASE_5.md
+TESTING_PHASE_6.md
+STRIPE_WEBHOOK_SETUP.md
+PHASE_COMPLETION.md
+DESIGN.md
+DEPLOYMENT_CHECKLIST.md
+AGENTS.md
+DECISIONS.md

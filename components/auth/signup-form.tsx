@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, signUp } from "@/lib/auth-client";
-import { initializeUserData } from "@/app/actions/auth-actions";
+import { signUp } from "@/lib/auth-client";
+import { sendVerificationOTP } from "@/app/actions/verification-actions";
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2";
 
 export function SignupForm() {
   const router = useRouter();
@@ -19,6 +22,7 @@ export function SignupForm() {
     setLoading(true);
 
     try {
+      // Create the account (email not verified yet)
       const result = await signUp.email({
         email,
         password,
@@ -31,14 +35,17 @@ export function SignupForm() {
         return;
       }
 
-      // Initialize user subscription
-      if (result.data?.user) {
-        await initializeUserData(result.data.user.id);
+      // Send verification OTP
+      const otpResult = await sendVerificationOTP(email);
+
+      if (!otpResult.success) {
+        setError(otpResult.error || "Failed to send verification email");
+        setLoading(false);
+        return;
       }
 
-      // Success - redirect to dashboard
-      router.push("/dashboard");
-      router.refresh();
+      // Redirect to verification page
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (_err) {
       setError("An unexpected error occurred");
       setLoading(false);
@@ -58,11 +65,11 @@ export function SignupForm() {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {error && <div className="text-sm text-red-600">{error}</div>}
 
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2">
+          <label htmlFor="name" className="block text-sm font-medium text-zinc-900">
             Full Name
           </label>
           <input
@@ -71,13 +78,13 @@ export function SignupForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={`block w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-600 ${focusRing}`}
             placeholder="John Doe"
           />
         </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2">
+          <label htmlFor="email" className="block text-sm font-medium text-zinc-900">
             Email
           </label>
           <input
@@ -86,13 +93,13 @@ export function SignupForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={`block w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-600 ${focusRing}`}
             placeholder="you@example.com"
           />
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2">
+          <label htmlFor="password" className="block text-sm font-medium text-zinc-900">
             Password
           </label>
           <input
@@ -102,16 +109,16 @@ export function SignupForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={`block w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-600 ${focusRing}`}
             placeholder="••••••••"
           />
-          <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+          <p className="text-xs text-zinc-500">Must be at least 8 characters</p>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className={`w-full rounded-lg bg-zinc-900 px-6 py-3.5 text-base font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 ${focusRing}`}
         >
           {loading ? "Creating account..." : "Create account"}
         </button>
@@ -119,19 +126,19 @@ export function SignupForm() {
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300" />
+          <div className="w-full border-t border-zinc-200" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-2 text-gray-500">Or continue with</span>
+          <span className="bg-white px-2 text-zinc-500">Or continue with</span>
         </div>
       </div>
 
       <button
         type="button"
         onClick={handleGoogleSignUp}
-        className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className={`flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-6 py-3 font-medium text-zinc-900 transition-colors hover:bg-zinc-50 ${focusRing}`}
       >
-        <svg className="h-5 w-5" viewBox="0 0 24 24">
+        <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
             fill="#4285F4"

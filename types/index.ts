@@ -4,6 +4,7 @@ import { z } from "zod";
 export const LinkSchema = z.object({
   label: z.string(),
   url: z.string().url(),
+  platform: z.string().optional(),
 });
 
 export const BasicsSchema = z.object({
@@ -14,6 +15,7 @@ export const BasicsSchema = z.object({
   location: z.string().default(""),
   website: z.string().url().or(z.literal("")).default(""),
   links: z.array(LinkSchema).default([]),
+  photo: z.string().optional(), // Base64 or URL
 });
 
 export const ExperienceItemSchema = z.object({
@@ -72,6 +74,16 @@ export const LanguageItemSchema = z.object({
   proficiency: z.string(), // e.g., "Native", "Fluent", "Professional", "Basic"
 });
 
+export const ReferenceItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  title: z.string(),
+  company: z.string().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  relationship: z.string().optional(),
+});
+
 export const CustomItemSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -89,6 +101,7 @@ export const SectionSchema = z.object({
     "projects",
     "certifications",
     "languages",
+    "references",
     "custom",
   ]),
   title: z.string(),
@@ -108,7 +121,7 @@ export const ThemeSchema = z.object({
   fontSize: z.enum(["small", "medium", "large"]).default("medium"),
   spacing: z.enum(["compact", "normal", "relaxed"]).default("normal"),
   margins: z.enum(["narrow", "normal", "wide"]).default("normal"),
-  pageSize: z.enum(["a4", "letter"]).default("a4"),
+  pageSize: z.enum(["a4", "letter", "folio"]).default("a4"),
 });
 
 // Infer types from schemas
@@ -120,6 +133,7 @@ export type SkillItem = z.infer<typeof SkillItemSchema>;
 export type ProjectItem = z.infer<typeof ProjectItemSchema>;
 export type CertificationItem = z.infer<typeof CertificationItemSchema>;
 export type LanguageItem = z.infer<typeof LanguageItemSchema>;
+export type ReferenceItem = z.infer<typeof ReferenceItemSchema>;
 export type CustomItem = z.infer<typeof CustomItemSchema>;
 export type Section = z.infer<typeof SectionSchema>;
 export type ResumeContent = z.infer<typeof ResumeContentSchema>;
