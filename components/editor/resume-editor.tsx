@@ -7,10 +7,131 @@ import { updateResumeContent, updateResumeTemplate } from "@/app/actions/resume-
 import { EditorSidebar } from "./editor-sidebar";
 import { ResumePreview } from "@/components/preview/resume-preview";
 import { useDebounce } from "@/hooks/use-debounce";
-import { ArrowLeft, Check, AlertCircle, Loader2, Eye, PanelLeftClose, PanelLeft, GripVertical, Edit3, Smartphone } from "lucide-react";
+import { ArrowLeft, Check, AlertCircle, Loader2, Eye, PanelLeftClose, PanelLeft, GripVertical, Edit3, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import Link from "next/link";
 import { AIResumeAnalyzer } from "@/components/ai/ai-resume-analyzer";
 import { ExportButton } from "./export-button";
+
+// Mobile Preview Component with Zoom Controls
+function MobilePreview({ content, theme, templateId }: { content: ResumeContent; theme: Theme; templateId: string }) {
+  const [scale, setScale] = useState(0.5);
+  const [isPinching, setIsPinching] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const lastDistanceRef = useRef<number>(0);
+
+  const handleZoomIn = () => setScale((s) => Math.min(s + 0.1, 2));
+  const handleZoomOut = () => setScale((s) => Math.max(s - 0.1, 0.3));
+  const handleResetZoom = () => setScale(0.5);
+
+  // Pinch-to-zoom support
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        setIsPinching(true);
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        lastDistanceRef.current = distance;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && isPinching) {
+        e.preventDefault();
+        const distance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        
+        const delta = distance - lastDistanceRef.current;
+        const scaleFactor = 1 + delta * 0.01;
+        
+        setScale((s) => Math.max(0.3, Math.min(2, s * scaleFactor)));
+        lastDistanceRef.current = distance;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      setIsPinching(false);
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: false });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPinching]);
+
+  return (
+    <div className="flex-1 overflow-hidden pb-16 bg-zinc-100 relative flex flex-col">
+      {/* Zoom Controls */}
+      <div className="sticky top-0 z-10 bg-white border-b border-zinc-200 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleZoomOut}
+            className="p-2 rounded-lg hover:bg-zinc-100 transition-colors"
+            aria-label="Zoom out"
+          >
+            <ZoomOut className="h-5 w-5 text-zinc-700" />
+          </button>
+          <span className="text-sm font-medium text-zinc-700 min-w-[60px] text-center">
+            {Math.round(scale * 100)}%
+          </span>
+          <button
+            onClick={handleZoomIn}
+            className="p-2 rounded-lg hover:bg-zinc-100 transition-colors"
+            aria-label="Zoom in"
+          >
+            <ZoomIn className="h-5 w-5 text-zinc-700" />
+          </button>
+        </div>
+        <button
+          onClick={handleResetZoom}
+          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors"
+        >
+          <Maximize2 className="h-4 w-4" />
+          Reset
+        </button>
+      </div>
+
+      {/* Preview Container */}
+      <div 
+        ref={containerRef}
+        className="flex-1 overflow-auto"
+        style={{
+          touchAction: isPinching ? 'none' : 'pan-x pan-y',
+        }}
+      >
+        <div className="p-4 inline-block min-w-full">
+          <div 
+            style={{ 
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+              transition: isPinching ? 'none' : 'transform 0.2s ease-out',
+            }}
+          >
+            <ResumePreview content={content} theme={theme} templateId={templateId} />
+          </div>
+        </div>
+      </div>
+
+      {/* Pinch Hint */}
+      {!isPinching && scale === 0.5 && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-zinc-900/75 text-white text-xs px-4 py-2 rounded-full pointer-events-none animate-pulse">
+          Pinch to zoom
+        </div>
+      )}
+    </div>
+  );
+}
 
 type ResumeEditorProps = {
   resume: Resume;
@@ -302,20 +423,7 @@ export function ResumeEditor({ resume, userPlan, onContentChange, currentContent
               />
             </div>
           ) : (
-            <div className="flex-1 overflow-y-auto pb-16 bg-zinc-100">
-              <div className="w-full max-w-4xl mx-auto p-4">
-                {/* Mobile preview container with proper scaling */}
-                <div className="bg-white shadow-lg mx-auto" style={{ 
-                  width: '100%',
-                  maxWidth: '210mm', // A4 width
-                  aspectRatio: '210 / 297' // A4 ratio
-                }}>
-                  <div className="w-full h-full scale-[0.95] origin-top-left">
-                    <ResumePreview content={content} theme={theme} templateId={templateId} />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <MobilePreview content={content} theme={theme} templateId={templateId} />
           )}
           
           {/* Mobile View Toggle Tabs - Fixed at Bottom */}
