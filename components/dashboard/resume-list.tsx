@@ -109,9 +109,9 @@ export function ResumeList({ initialResumes }: { initialResumes: Resume[] }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900">
             Your Resumes
           </h2>
           <p className="mt-1 text-sm text-zinc-600">
@@ -121,7 +121,7 @@ export function ResumeList({ initialResumes }: { initialResumes: Resume[] }) {
         <button
           onClick={handleCreateResume}
           disabled={loading}
-          className={`inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${focusRing}`}
+          className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${focusRing}`}
         >
           <Plus className="h-4 w-4" />
           {loading ? "Creating..." : "New Resume"}
@@ -147,7 +147,7 @@ export function ResumeList({ initialResumes }: { initialResumes: Resume[] }) {
           </button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {initialResumes.map((resume) => (
             <div 
               key={resume.id} 
